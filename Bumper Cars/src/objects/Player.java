@@ -1,4 +1,4 @@
-package betterCollisions;
+package objects;
 
 import java.awt.Color;
 

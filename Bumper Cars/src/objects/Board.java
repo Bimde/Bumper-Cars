@@ -1,4 +1,4 @@
-package betterCollisions;
+package objects;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -19,13 +19,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 	private boolean[] keysPressed = { false, false, false, false };
 	Timer timer;
 	private static final Color START_COLOR = Color.BLACK;
-	private Color color;
 	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 800, DELAY = 1000 / 60, MIN_SQAURE_SIZE = 20, UP = 0,
 			DOWN = 1, LEFT = 2, RIGHT = 3;
 
 	public Board() {
 		super();
-		this.color = START_COLOR;
 		this.setFocusable(true);
 		this.addKeyListener(this);
 		this.timer = new Timer(DELAY, this);
