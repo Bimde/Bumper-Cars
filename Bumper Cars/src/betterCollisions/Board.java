@@ -36,7 +36,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
 	private void addEntity(boolean isAI) {
 		if (isAI) {
-			this.entityList.add(new AI(color, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
+			this.entityList.add(new AI(Color.ORANGE, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
 					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
 					(int) (Math.random() * (MAX_SQUARE_SIZE - MIN_SQAURE_SIZE) + MIN_SQAURE_SIZE)));
 		} else {
@@ -73,6 +73,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 			this.keysPressed[LEFT] = true;
 		else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
 			this.keysPressed[RIGHT] = true;
+		else if (key == KeyEvent.VK_V)
+			this.addEntity(true);
 	}
 
 	@Override
@@ -102,5 +104,4 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 			i.move();
 		}
 	}
-
 }

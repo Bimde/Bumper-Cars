@@ -1,6 +1,8 @@
 package betterCollisions;
 
 import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public class AI extends Entity {
 
@@ -12,6 +14,15 @@ public class AI extends Entity {
 		super(color, x, y, size, new Direction(Math.random() * 360, AI_VELOCITY));
 		this.dCoX = Math.random() < 0.5 ? 1 : -1;
 		this.dCoY = Math.random() < 0.5 ? 1 : -1;
+	}
+	
+	public void paint(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g.create();
+		g2d.drawString("Angle: " + this.vector.angle + " | Velocity: " + this.vector.velocity, 10, 30);
+		g2d.setColor(this.color);
+		g2d.rotate(Math.toRadians(this.vector.angle), this.x + this.size / 2, this.y + this.size / 2);
+		g2d.fillRect((int) this.x, (int) this.y, this.size, this.size);
+		g2d.dispose();
 	}
 
 	synchronized void changeX(int dif) {
