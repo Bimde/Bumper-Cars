@@ -12,7 +12,8 @@ public class Entity {
 	protected Color color;
 	protected Direction vector;
 	protected ArrayList<Entity> entityList;
-	public static final double MAX_VELOCITY = 10, MIN_VELOCITY = 0, FRICTION = 0.01, TURN_FRICTION = 3;
+	public static final double MAX_VELOCITY = 20, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
+			TURN_FRICTION = 0.6, VELOCTY_EFFECT_ON_TURN_FRICTION = 0.5;
 	protected boolean isTurning;
 
 	public Entity(Color color, int x, int y, int size, Direction vector, ArrayList<Entity> entityList) {
@@ -89,13 +90,17 @@ public class Entity {
 									* (this.isTurning
 											? Math.max(
 													TURN_FRICTION * this.vector.velocity * this.vector.velocity
-															/ (2 * MAX_VELOCITY
-																	/ (Math.max(MIN_VELOCITY * -1, 2))),
+															/ Math.pow(MAX_VELOCITY, VELOCTY_EFFECT_ON_TURN_FRICTION),
 													1)
 											: 1));
 		} else {
-			this.vector.velocity = Math.min(0, this.vector.velocity + FRICTION
-					* (this.isTurning ? Math.max(TURN_FRICTION * this.vector.velocity * this.vector.velocity, 1) : 1));
+			this.vector.velocity = Math.min(0,
+					this.vector.velocity
+							+ FRICTION
+									* (this.isTurning ? Math.max(
+											TURN_FRICTION * this.vector.velocity * this.vector.velocity
+													/ Math.pow(Math.abs(MIN_VELOCITY), VELOCTY_EFFECT_ON_TURN_FRICTION),
+											1) : 1));
 		}
 	}
 
