@@ -1,14 +1,15 @@
 package objects;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 public class Player extends Entity {
 
 	private boolean[] keysPressed;
 	private final double SPEED_INCREMENT = 0.1, ANGLE_INCREMENT = 0.4;
 
-	public Player(Color color, int x, int y, int size, boolean[] keysPressed) {
-		super(color, x, y, size, new Direction(0, 0));
+	public Player(Color color, int x, int y, int size, boolean[] keysPressed, ArrayList<Entity> entityList) {
+		super(color, x, y, size, new Direction(0, 0), entityList);
 		this.keysPressed = keysPressed;
 	}
 

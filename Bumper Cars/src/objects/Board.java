@@ -22,7 +22,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 	private static final Color START_COLOR = Color.BLACK;
 	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 600, DELAY = 1000 / 60, MIN_SQAURE_SIZE = 20, UP = 0,
 			DOWN = 1, LEFT = 2, RIGHT = 3;
-	private int width, height;
 
 	public Board() {
 		super();
@@ -38,20 +37,21 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 		if (isAI) {
 			this.entityList.add(new AI(Color.ORANGE, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
 					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
-					(int) (Math.random() * (MAX_SQUARE_SIZE - MIN_SQAURE_SIZE) + MIN_SQAURE_SIZE)));
+					(int) (Math.random() * (MAX_SQUARE_SIZE - MIN_SQAURE_SIZE) + MIN_SQAURE_SIZE), this.entityList));
 		} else {
 			this.player = new Player(START_COLOR, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
 					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)), (MAX_SQUARE_SIZE + MIN_SQAURE_SIZE) / 2,
-					this.keysPressed);
+					this.keysPressed, this.entityList);
 			this.entityList.add(this.player);
 		}
 	}
 
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		for (int i = 0; i < this.entityList.size(); i++) {
+		for (int i = 1; i < this.entityList.size(); i++) {
 			this.entityList.get(i).paint(g);
 		}
+		this.entityList.get(0).paint(g);
 	}
 
 	public static void main(String[] args) {
@@ -77,7 +77,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 		else if (key == KeyEvent.VK_V)
 			this.addEntity(true);
 		else if (key == KeyEvent.VK_F) {
-			System.out.println(this.player.vector.angle);
+			System.out.println("Number of AI: " + this.entityList.size() + "\nVelocity: " + this.player.vector.velocity
+					+ "\nAngle: " + this.player.vector.angle);
 			for (int i = 0; i < 5; i++)
 				System.out.println("------------------------------------------------");
 		}

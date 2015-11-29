@@ -3,6 +3,7 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
 public class AI extends Entity {
 
@@ -10,8 +11,8 @@ public class AI extends Entity {
 	private static final double AI_VELOCITY = 5;
 	private static final double DIRECTION_CHANGE_CHANCE = 0.1, ANGLE_CHANGE = 2;
 
-	public AI(Color color, int x, int y, int size) {
-		super(color, x, y, size, new Direction(Math.random() * 360, AI_VELOCITY));
+	public AI(Color color, int x, int y, int size, ArrayList<Entity> entityList) {
+		super(color, x, y, size, new Direction(Math.random() * 360, AI_VELOCITY), entityList);
 		this.angleChange = (int) (Math.random() * 3) - 1;
 		this.vector.velocity = AI_VELOCITY;
 	}
@@ -32,6 +33,9 @@ public class AI extends Entity {
 		this.absoluteDirectionChange(this.angleChange * ANGLE_CHANGE);
 	}
 
+	/**
+	 * Overrides Entity's move to prevent friction from applying
+	 */
 	@Override
 	public synchronized void move() {
 		double radians = Math.toRadians(this.vector.angle);

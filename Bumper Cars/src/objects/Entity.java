@@ -3,6 +3,7 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
 public class Entity {
 
@@ -10,14 +11,16 @@ public class Entity {
 	protected int size;
 	protected Color color;
 	protected Direction vector;
-	public static final double MAX_VELOCITY = 10, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01;
+	protected ArrayList<Entity> entityList;
+	public static final double MAX_VELOCITY = 50, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01;
 
-	public Entity(Color color, int x, int y, int size, Direction vector) {
+	public Entity(Color color, int x, int y, int size, Direction vector, ArrayList<Entity> entityList) {
 		this.color = color;
 		this.x = x * 1.0;
 		this.y = y * 1.0;
 		this.size = size;
 		this.vector = vector;
+		this.entityList = entityList;
 	}
 
 	public void paint(Graphics g) {
@@ -49,7 +52,7 @@ public class Entity {
 	}
 
 	protected void incrementX(double change) {
-		synchronized (x) {
+		synchronized (this.x) {
 			this.x += change;
 			if (this.x > Board.BOARD_SIZE - this.size && this.vector.angle < 180) {
 				this.x = (Board.BOARD_SIZE - this.size) * 1.0;
@@ -62,14 +65,14 @@ public class Entity {
 	}
 
 	protected void incrementY(double change) {
-		synchronized (y) {
+		synchronized (this.y) {
 			this.y += change;
 			if (this.y > Board.BOARD_SIZE - this.size && this.vector.angle > 90 && this.vector.angle < 270) {
 				this.y = (Board.BOARD_SIZE - this.size) * 1.0;
-				this.vector.angle = 180 - this.vector.angle;
+				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
 			} else if (this.y < 0 && (this.vector.angle < 90 || this.vector.angle > 270)) {
 				this.y = 0 * 1.0;
-				this.vector.angle = 360 + 180 - this.vector.angle;
+				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
 			}
 		}
 	}
@@ -91,7 +94,7 @@ public class Entity {
 	}
 
 	public synchronized void absoluteDirectionChange(double change) {
-		this.vector.angle = (this.vector.angle + change) % 360;
+		this.vector.angle = (this.vector.angle + change + 360) % 360;
 	}
 
 	public void roundAngle() {
