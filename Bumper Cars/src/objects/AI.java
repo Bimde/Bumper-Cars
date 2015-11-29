@@ -29,6 +29,7 @@ public class AI extends Entity {
 	synchronized void update() {
 		if (Math.random() <= DIRECTION_CHANGE_CHANCE) {
 			this.angleChange = (int) (Math.random() * 3) - 1;
+			this.isTurning = this.angleChange == 0 ? false : true;
 		}
 		this.absoluteDirectionChange(this.angleChange * ANGLE_CHANGE);
 	}

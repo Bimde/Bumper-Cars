@@ -12,7 +12,8 @@ public class Entity {
 	protected Color color;
 	protected Direction vector;
 	protected ArrayList<Entity> entityList;
-	public static final double MAX_VELOCITY = 50, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01;
+	public static final double MAX_VELOCITY = 10, MIN_VELOCITY = 0, FRICTION = 0.01, TURN_FRICTION = 1;
+	protected boolean isTurning;
 
 	public Entity(Color color, int x, int y, int size, Direction vector, ArrayList<Entity> entityList) {
 		this.color = color;
@@ -21,6 +22,7 @@ public class Entity {
 		this.size = size;
 		this.vector = vector;
 		this.entityList = entityList;
+		this.isTurning = false;
 	}
 
 	public void paint(Graphics g) {
@@ -79,9 +81,19 @@ public class Entity {
 
 	public void friction() {
 		if (this.vector.velocity > 0) {
-			this.vector.velocity = Math.max(0, this.vector.velocity - FRICTION);
+			this.vector.velocity = Math.max(0,
+					this.vector.velocity
+							- FRICTION
+									* (this.isTurning
+											? Math.max(
+													TURN_FRICTION * this.vector.velocity * this.vector.velocity
+															/ (2 * MAX_VELOCITY
+																	/ (MIN_VELOCITY < 0 ? MIN_VELOCITY * -1 : 2)),
+													1)
+											: 1));
 		} else {
-			this.vector.velocity = Math.min(0, this.vector.velocity + FRICTION);
+			this.vector.velocity = Math.min(0, this.vector.velocity + FRICTION
+					* (this.isTurning ? Math.max(TURN_FRICTION * this.vector.velocity * this.vector.velocity, 1) : 1));
 		}
 	}
 
