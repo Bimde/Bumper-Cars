@@ -1,6 +1,7 @@
 package objects;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,8 +20,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 	private boolean[] keysPressed = { false, false, false, false };
 	Timer timer;
 	private static final Color START_COLOR = Color.BLACK;
-	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 800, DELAY = 1000 / 60, MIN_SQAURE_SIZE = 20, UP = 0,
+	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 600, DELAY = 1000 / 60, MIN_SQAURE_SIZE = 20, UP = 0,
 			DOWN = 1, LEFT = 2, RIGHT = 3;
+	private int width, height;
 
 	public Board() {
 		super();
@@ -54,8 +56,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
 	public static void main(String[] args) {
 		JFrame frame = new JFrame("Bumper Cars");
-		frame.add(new Board());
-		frame.setSize(BOARD_SIZE, BOARD_SIZE);
+		Board board = new Board();
+		frame.add(board);
+		frame.setSize(BOARD_SIZE + 16, BOARD_SIZE + 39);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -73,6 +76,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 			this.keysPressed[RIGHT] = true;
 		else if (key == KeyEvent.VK_V)
 			this.addEntity(true);
+		else if (key == KeyEvent.VK_F) {
+			System.out.println(this.player.vector.angle);
+			for (int i = 0; i < 5; i++)
+				System.out.println("------------------------------------------------");
+		}
 	}
 
 	@Override
@@ -86,13 +94,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 			this.keysPressed[LEFT] = false;
 		else if (key == KeyEvent.VK_D || key == KeyEvent.VK_RIGHT)
 			this.keysPressed[RIGHT] = false;
+		else if (key == KeyEvent.VK_R)
+			this.player.roundAngle();
 
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_V)
-			this.addEntity(true);
 	}
 
 	@Override

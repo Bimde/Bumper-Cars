@@ -5,7 +5,7 @@ import java.awt.Color;
 public class Player extends Entity {
 
 	private boolean[] keysPressed;
-	private final double SPEED_INCREMENT = 0.1, ANGLE_INCREMENT = 0.2;
+	private final double SPEED_INCREMENT = 0.1, ANGLE_INCREMENT = 0.4;
 
 	public Player(Color color, int x, int y, int size, boolean[] keysPressed) {
 		super(color, x, y, size, new Direction(0, 0));
@@ -19,9 +19,9 @@ public class Player extends Entity {
 		if (keysPressed[Board.DOWN])
 			this.speed(-SPEED_INCREMENT);
 		if (keysPressed[Board.LEFT])
-			this.direction(-ANGLE_INCREMENT);
+			this.relativeDirectionChange(-ANGLE_INCREMENT);
 		if (keysPressed[Board.RIGHT])
-			this.direction(ANGLE_INCREMENT);
+			this.relativeDirectionChange(ANGLE_INCREMENT);
 		super.move();
 	}
 }

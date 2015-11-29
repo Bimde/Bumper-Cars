@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 
 public class Entity {
 
-	double x, y;
+	Double x, y;
 	protected int size;
 	protected Color color;
 	protected Direction vector;
@@ -14,8 +14,8 @@ public class Entity {
 
 	public Entity(Color color, int x, int y, int size, Direction vector) {
 		this.color = color;
-		this.x = x;
-		this.y = y;
+		this.x = x * 1.0;
+		this.y = y * 1.0;
 		this.size = size;
 		this.vector = vector;
 	}
@@ -25,7 +25,7 @@ public class Entity {
 		g2d.drawString("Angle: " + this.vector.angle + " | Velocity: " + this.vector.velocity, 10, 10);
 		g2d.setColor(this.color);
 		g2d.rotate(Math.toRadians(this.vector.angle), this.x + this.size / 2, this.y + this.size / 2);
-		g2d.fillRect((int) this.x, (int) this.y, this.size, this.size);
+		g2d.fillRect(this.x.intValue(), this.y.intValue(), this.size, this.size);
 		g2d.dispose();
 	}
 
@@ -43,22 +43,35 @@ public class Entity {
 
 	public synchronized void move() {
 		double radians = Math.toRadians(this.vector.angle);
-		this.x += this.vector.velocity * Math.sin(radians);
-		this.y -= this.vector.velocity * Math.cos(radians);
+		this.incrementX(this.vector.velocity * Math.sin(radians));
+		this.incrementY(-this.vector.velocity * Math.cos(radians));
 		this.friction();
 	}
 
-	protected void incrementX(int change) {
-		// this.x += change;
-		// if(this.x > Board.BOARD_SIZE - this.size) {
-		// this.x = Board.BOARD_SIZE - this.size;
-		// this.direction(angleChange);
-		// }
-		//
+	protected void incrementX(double change) {
+		synchronized (x) {
+			this.x += change;
+			if (this.x > Board.BOARD_SIZE - this.size && this.vector.angle < 180) {
+				this.x = (Board.BOARD_SIZE - this.size) * 1.0;
+				this.vector.angle = 360 - this.vector.angle;
+			} else if (this.x < 0 && this.vector.angle > 180) {
+				this.x = 0 * 1.0;
+				this.vector.angle = 360 - this.vector.angle;
+			}
+		}
 	}
 
-	protected void incrementY(int change) {
-		this.y += change;
+	protected void incrementY(double change) {
+		synchronized (y) {
+			this.y += change;
+			if (this.y > Board.BOARD_SIZE - this.size && this.vector.angle > 90 && this.vector.angle < 270) {
+				this.y = (Board.BOARD_SIZE - this.size) * 1.0;
+				this.vector.angle = 180 - this.vector.angle;
+			} else if (this.y < 0 && (this.vector.angle < 90 || this.vector.angle > 270)) {
+				this.y = 0 * 1.0;
+				this.vector.angle = 360 + 180 - this.vector.angle;
+			}
+		}
 	}
 
 	public void friction() {
@@ -73,11 +86,16 @@ public class Entity {
 		this.vector.velocity = Math.max(MIN_VELOCITY, Math.min(this.vector.velocity + change, MAX_VELOCITY));
 	}
 
-	public synchronized void direction(double angleChange) {
-		this.vector.angle = (360 + this.vector.angle
-				+ (this.vector.velocity > 0 ? angleChange : this.vector.velocity < 0 ? -angleChange : 0)
-						* Math.abs(this.vector.velocity))
-				% 360;
+	public synchronized void relativeDirectionChange(double angleChange) {
+		this.vector.angle = (360 + this.vector.angle + angleChange * this.vector.velocity) % 360;
+	}
+
+	public synchronized void absoluteDirectionChange(double change) {
+		this.vector.angle = (this.vector.angle + change) % 360;
+	}
+
+	public void roundAngle() {
+		this.vector.angle = Math.round(this.vector.angle);
 	}
 
 	public Direction movement() {
@@ -85,11 +103,11 @@ public class Entity {
 	}
 
 	public int x() {
-		return (int) this.x;
+		return this.x.intValue();
 	}
 
 	public int y() {
-		return (int) this.y;
+		return this.y.intValue();
 	}
 
 	public int size() {
