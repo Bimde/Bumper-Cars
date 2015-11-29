@@ -12,7 +12,7 @@ public class Entity {
 	protected Color color;
 	protected Direction vector;
 	protected ArrayList<Entity> entityList;
-	public static final double MAX_VELOCITY = 10, MIN_VELOCITY = 0, FRICTION = 0.01, TURN_FRICTION = 1;
+	public static final double MAX_VELOCITY = 10, MIN_VELOCITY = 0, FRICTION = 0.01, TURN_FRICTION = 3;
 	protected boolean isTurning;
 
 	public Entity(Color color, int x, int y, int size, Direction vector, ArrayList<Entity> entityList) {
@@ -81,6 +81,8 @@ public class Entity {
 
 	public void friction() {
 		if (this.vector.velocity > 0) {
+			// Reduce the velocity of the vector proportionally based on the
+			// current velocity and whether or not it is turning
 			this.vector.velocity = Math.max(0,
 					this.vector.velocity
 							- FRICTION
@@ -88,7 +90,7 @@ public class Entity {
 											? Math.max(
 													TURN_FRICTION * this.vector.velocity * this.vector.velocity
 															/ (2 * MAX_VELOCITY
-																	/ (MIN_VELOCITY < 0 ? MIN_VELOCITY * -1 : 2)),
+																	/ (Math.max(MIN_VELOCITY * -1, 2))),
 													1)
 											: 1));
 		} else {
@@ -113,7 +115,7 @@ public class Entity {
 		this.vector.angle = Math.round(this.vector.angle);
 	}
 
-	public Direction movement() {
+	public Direction vector() {
 		return this.vector;
 	}
 
