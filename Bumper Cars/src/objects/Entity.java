@@ -118,6 +118,15 @@ public class Entity {
 
 	}
 
+	protected double[][] cords() {
+		double[][] cords = new double[4][2];
+		cords[0] = new double[] { this.x, this.y };
+		cords[1] = new double[] { this.x + this.size, this.y };
+		cords[2] = new double[] { this.x, this.y + this.size };
+		cords[3] = new double[] { this.x + this.size, this.y + this.size };
+		return cords;
+	}
+
 	protected Axis[] getAxes() {
 		Axis[] axes = new Axis[2];
 		double slope = Math.tan(Math.toRadians(this.vector.angle));
@@ -129,8 +138,11 @@ public class Entity {
 	}
 
 	// TODO Finish this
-	protected int[] project(Axis i) {
-		int[] projection = new int[2];
+	protected double[] project(Axis a) {
+		double[] projection = new double[2];
+		projection[0] = Integer.MAX_VALUE;
+		projection[1] = Integer.MIN_VALUE;
+		double[][] cords = this.cords();
 		return projection;
 	}
 
