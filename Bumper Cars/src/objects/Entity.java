@@ -3,6 +3,7 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 
 public class Entity {
@@ -12,7 +13,7 @@ public class Entity {
 	protected Color color;
 	protected Direction vector;
 	protected ArrayList<Entity> entityList;
-	public static final double MAX_VELOCITY = 20, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
+	public static final double MAX_VELOCITY = 200, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
 			TURN_FRICTION = 0.6, VELOCTY_EFFECT_ON_TURN_FRICTION = 0.5;
 	protected boolean isTurning;
 
@@ -48,6 +49,8 @@ public class Entity {
 	}
 
 	public synchronized void move() {
+		for (Entity i : this.entityList)
+			intersects(i);
 		double radians = Math.toRadians(this.vector.angle);
 		this.incrementX(this.vector.velocity * Math.sin(radians));
 		this.incrementY(-this.vector.velocity * Math.cos(radians));
@@ -60,9 +63,11 @@ public class Entity {
 			if (this.x > Board.BOARD_SIZE - this.size && this.vector.angle < 180) {
 				this.x = (Board.BOARD_SIZE - this.size) * 1.0;
 				this.vector.angle = 360 - this.vector.angle;
+				Toolkit.getDefaultToolkit().beep();
 			} else if (this.x < 0 && this.vector.angle > 180) {
 				this.x = 0 * 1.0;
 				this.vector.angle = 360 - this.vector.angle;
+				Toolkit.getDefaultToolkit().beep();
 			}
 		}
 	}
@@ -73,9 +78,11 @@ public class Entity {
 			if (this.y > Board.BOARD_SIZE - this.size && this.vector.angle > 90 && this.vector.angle < 270) {
 				this.y = (Board.BOARD_SIZE - this.size) * 1.0;
 				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+				Toolkit.getDefaultToolkit().beep();
 			} else if (this.y < 0 && (this.vector.angle < 90 || this.vector.angle > 270)) {
 				this.y = 0 * 1.0;
 				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+				Toolkit.getDefaultToolkit().beep();
 			}
 		}
 	}
@@ -102,6 +109,29 @@ public class Entity {
 													/ Math.pow(Math.abs(MIN_VELOCITY), VELOCTY_EFFECT_ON_TURN_FRICTION),
 											1) : 1));
 		}
+	}
+
+	protected void intersects(Entity i) {
+		if (i == this)
+			return;
+		int x = i.x(), y = i.y(), size = i.size();
+
+	}
+
+	protected Axis[] getAxes() {
+		Axis[] axes = new Axis[2];
+		double slope = Math.tan(Math.toRadians(this.vector.angle));
+		axes[0] = new Axis(slope, this.y - slope * this.x);
+		// Lazy way for rectangles!
+		slope = 1 / slope;
+		axes[1] = new Axis(slope, this.y - slope * this.x);
+		return axes;
+	}
+
+	// TODO Finish this
+	protected int[] project(Axis i) {
+		int[] projection = new int[2];
+		return projection;
 	}
 
 	public synchronized void speed(double change) {

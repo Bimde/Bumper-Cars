@@ -1,8 +1,9 @@
 package objects;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -20,7 +21,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 	private boolean[] keysPressed = { false, false, false, false };
 	Timer timer;
 	private static final Color START_COLOR = Color.BLACK;
-	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 600, DELAY = 1000 / 60, MIN_SQAURE_SIZE = 20, UP = 0,
+	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 600, DELAY = 1000 / 60, MIN_SQUARE_SIZE = 20, UP = 0,
 			DOWN = 1, LEFT = 2, RIGHT = 3;
 
 	public Board() {
@@ -37,10 +38,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 		if (isAI) {
 			this.entityList.add(new AI(Color.ORANGE, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
 					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
-					(int) (Math.random() * (MAX_SQUARE_SIZE - MIN_SQAURE_SIZE) + MIN_SQAURE_SIZE), this.entityList));
+					(int) (Math.random() * (MAX_SQUARE_SIZE - MIN_SQUARE_SIZE) + MIN_SQUARE_SIZE), this.entityList));
 		} else {
 			this.player = new Player(START_COLOR, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
-					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)), (MAX_SQUARE_SIZE + MIN_SQAURE_SIZE) / 2,
+					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)), (MAX_SQUARE_SIZE + MIN_SQUARE_SIZE) / 2,
 					this.keysPressed, this.entityList);
 			this.entityList.add(this.player);
 		}
@@ -48,6 +49,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		for (int i = 1; i < this.entityList.size(); i++) {
 			this.entityList.get(i).paint(g);
 		}
