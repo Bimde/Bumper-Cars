@@ -8,12 +8,12 @@ import java.util.ArrayList;
 
 public class Entity {
 
-	Double x, y;
+	protected Double x, y;
 	protected int size;
 	protected Color color;
 	protected Direction vector;
 	protected ArrayList<Entity> entityList;
-	public static final double MAX_VELOCITY = 200, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
+	public static final double MAX_VELOCITY = 20, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
 			TURN_FRICTION = 0.6, VELOCTY_EFFECT_ON_TURN_FRICTION = 0.5;
 	protected boolean isTurning;
 
@@ -60,11 +60,12 @@ public class Entity {
 	protected void incrementX(double change) {
 		synchronized (this.x) {
 			this.x += change;
-			if (this.x > Board.BOARD_SIZE - this.size && this.vector.angle < 180) {
+			if (this.x > Board.BOARD_SIZE - this.size
+					&& (this.forward() ? this.vector.angle < 180 : this.vector.angle > 180)) {
 				this.x = (Board.BOARD_SIZE - this.size) * 1.0;
 				this.vector.angle = 360 - this.vector.angle;
 				Toolkit.getDefaultToolkit().beep();
-			} else if (this.x < 0 && this.vector.angle > 180) {
+			} else if (this.x < 0 && (this.forward() ? this.vector.angle > 180 : this.vector.angle < 180)) {
 				this.x = 0 * 1.0;
 				this.vector.angle = 360 - this.vector.angle;
 				Toolkit.getDefaultToolkit().beep();
@@ -75,11 +76,14 @@ public class Entity {
 	protected void incrementY(double change) {
 		synchronized (this.y) {
 			this.y += change;
-			if (this.y > Board.BOARD_SIZE - this.size && this.vector.angle > 90 && this.vector.angle < 270) {
+			if (this.y > Board.BOARD_SIZE - this.size
+					&& (this.forward() ? this.vector.angle > 90 && this.vector.angle < 270
+							: this.vector.angle < 90 || this.vector.angle > 270)) {
 				this.y = (Board.BOARD_SIZE - this.size) * 1.0;
 				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
 				Toolkit.getDefaultToolkit().beep();
-			} else if (this.y < 0 && (this.vector.angle < 90 || this.vector.angle > 270)) {
+			} else if (this.y < 0 && (!this.forward() ? this.vector.angle > 90 && this.vector.angle < 270
+					: this.vector.angle < 90 || this.vector.angle > 270)) {
 				this.y = 0 * 1.0;
 				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
 				Toolkit.getDefaultToolkit().beep();
@@ -184,5 +188,10 @@ public class Entity {
 
 	public int getHeight() {
 		return this.size;
+	}
+
+	public boolean forward() {
+		System.out.println(this.vector.velocity > 0);
+		return this.vector.velocity > 0;
 	}
 }

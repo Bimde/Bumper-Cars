@@ -49,7 +49,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		((Graphics2D)g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		for (int i = 1; i < this.entityList.size(); i++) {
 			this.entityList.get(i).paint(g);
 		}
