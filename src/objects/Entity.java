@@ -115,14 +115,13 @@ public class Entity {
 		}
 	}
 
+	// TODO Finish this + project method below
 	protected void intersects(Entity i) {
 		if (i == this)
 			return;
-		int x = i.x(), y = i.y(), size = i.size();
-
 	}
 
-	protected double[][] cords() {
+	protected double[][] getCords() {
 		double[][] cords = new double[4][2];
 		cords[0] = new double[] { this.x, this.y };
 		cords[1] = new double[] { this.x + this.size, this.y };
@@ -146,7 +145,7 @@ public class Entity {
 		double[] projection = new double[2];
 		projection[0] = Integer.MAX_VALUE;
 		projection[1] = Integer.MIN_VALUE;
-		double[][] cords = this.cords();
+		double[][] cords = this.getCords();
 		return projection;
 	}
 
@@ -191,7 +190,6 @@ public class Entity {
 	}
 
 	public boolean forward() {
-		System.out.println(this.vector.velocity > 0);
 		return this.vector.velocity > 0;
 	}
 }
