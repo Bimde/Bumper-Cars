@@ -36,7 +36,8 @@ public class Entity {
 		g2d.setColor(this.color);
 		g2d.rotate(Math.toRadians(this.vector.angle), this.x + this.size / 2,
 				this.y + this.size / 2);
-		g2d.fillRect(this.x.intValue(), this.y.intValue(), this.size, this.size);
+		g2d.fillRect(this.x.intValue(), this.y.intValue(), this.size,
+				this.size);
 		g2d.dispose();
 	}
 
@@ -48,10 +49,11 @@ public class Entity {
 	}
 
 	public boolean contains(Entity other) {
-		int tempX = this.x(), tempY = this.y(), otherX = other.x(), otherY = other
-				.y();
+		int tempX = this.x(), tempY = this.y(), otherX = other.x(),
+				otherY = other.y();
 		return (tempX + this.size > otherX && otherX + other.getWidth() > tempX
-				&& tempY + this.size > otherY && otherY + other.getHeight() > tempY);
+				&& tempY + this.size > otherY
+				&& otherY + other.getHeight() > tempY);
 	}
 
 	public synchronized void move() {
@@ -66,15 +68,13 @@ public class Entity {
 	protected void incrementX(double change) {
 		synchronized (this.x) {
 			this.x += change;
-			if (this.x > Board.BOARD_SIZE - this.size
-					&& (this.forward() ? this.vector.angle < 180
-							: this.vector.angle > 180)) {
+			if (this.x > Board.BOARD_SIZE - this.size && (this.forward()
+					? this.vector.angle < 180 : this.vector.angle > 180)) {
 				this.x = (Board.BOARD_SIZE - this.size) * 1.0;
 				this.vector.angle = 360 - this.vector.angle;
 				Toolkit.getDefaultToolkit().beep();
-			} else if (this.x < 0
-					&& (this.forward() ? this.vector.angle > 180
-							: this.vector.angle < 180)) {
+			} else if (this.x < 0 && (this.forward() ? this.vector.angle > 180
+					: this.vector.angle < 180)) {
 				this.x = 0 * 1.0;
 				this.vector.angle = 360 - this.vector.angle;
 				Toolkit.getDefaultToolkit().beep();
@@ -85,17 +85,15 @@ public class Entity {
 	protected void incrementY(double change) {
 		synchronized (this.y) {
 			this.y += change;
-			if (this.y > Board.BOARD_SIZE - this.size
-					&& (this.forward() ? this.vector.angle > 90
-							&& this.vector.angle < 270 : this.vector.angle < 90
-							|| this.vector.angle > 270)) {
+			if (this.y > Board.BOARD_SIZE - this.size && (this.forward()
+					? this.vector.angle > 90 && this.vector.angle < 270
+					: this.vector.angle < 90 || this.vector.angle > 270)) {
 				this.y = (Board.BOARD_SIZE - this.size) * 1.0;
 				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
 				Toolkit.getDefaultToolkit().beep();
-			} else if (this.y < 0
-					&& (!this.forward() ? this.vector.angle > 90
-							&& this.vector.angle < 270 : this.vector.angle < 90
-							|| this.vector.angle > 270)) {
+			} else if (this.y < 0 && (!this.forward()
+					? this.vector.angle > 90 && this.vector.angle < 270
+					: this.vector.angle < 90 || this.vector.angle > 270)) {
 				this.y = 0 * 1.0;
 				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
 				Toolkit.getDefaultToolkit().beep();
@@ -107,32 +105,26 @@ public class Entity {
 		if (this.vector.velocity > 0) {
 			// Reduce the velocity of the vector proportionally based on the
 			// current velocity and whether or not it is turning
-			this.vector.velocity = Math
-					.max(0,
-							this.vector.velocity
-									- FRICTION
-									* (this.isTurning ? Math.max(
-											TURN_FRICTION
-													* this.vector.velocity
-													* this.vector.velocity
-													/ Math.pow(MAX_VELOCITY,
-															VELOCTY_EFFECT_ON_TURN_FRICTION),
-											1)
-											: 1));
+			this.vector.velocity = Math.max(0,
+					this.vector.velocity
+							- FRICTION * (this.isTurning ? Math.max(
+									TURN_FRICTION * this.vector.velocity
+											* this.vector.velocity
+											/ Math.pow(MAX_VELOCITY,
+													VELOCTY_EFFECT_ON_TURN_FRICTION),
+							1) : 1));
 		} else {
-			this.vector.velocity = Math
-					.min(0,
-							this.vector.velocity
-									+ FRICTION
+			this.vector.velocity = Math.min(0,
+					this.vector.velocity
+							+ FRICTION
 									* (this.isTurning ? Math.max(
-											TURN_FRICTION
+											TURN_FRICTION * this.vector.velocity
 													* this.vector.velocity
-													* this.vector.velocity
-													/ Math.pow(Math
-															.abs(MIN_VELOCITY),
+													/ Math.pow(
+															Math.abs(
+																	MIN_VELOCITY),
 															VELOCTY_EFFECT_ON_TURN_FRICTION),
-											1)
-											: 1));
+									1) : 1));
 		}
 	}
 
@@ -172,26 +164,29 @@ public class Entity {
 		return axes;
 	}
 
-	// TODO Finish this
-	protected double[] project(Axis axis) {
-		double[] projection = new double[2];
-		projection[0] = Integer.MAX_VALUE;
-		projection[1] = Integer.MIN_VALUE;
+	protected double[][] project(Axis axis) {
 		double[][] cords = this.getCords();
 		double[] min = new double[] { Double.MIN_VALUE, Double.MIN_VALUE };
 		double[] max = new double[] { Double.MAX_VALUE, Double.MAX_VALUE };
 
 		if (axis.vertical) {
-
+			//TODO
 		}
 
 		for (int i = 0; i < cords.length; i++) {
-			double x = (cords[i][1] * axis.slope + cords[i][0] - axis.slope
-					* axis.yInt)
-					/ (axis.slope * axis.slope + 1);
-			// TODO
+			double x = (cords[i][1] * axis.slope + cords[i][0]
+					- axis.slope * axis.yInt) / (axis.slope * axis.slope + 1);
+			double y = axis.slope * x + axis.yInt;
+			if (y < min[1]) {
+				min[0] = x;
+				min[1] = y;
+			}
+			if (y > max[1]) {
+				max[0] = x;
+				max[1] = y;
+			}
 		}
-		return projection;
+		return new double[][] { min, max };
 	}
 
 	public synchronized void speed(double change) {
@@ -200,8 +195,8 @@ public class Entity {
 	}
 
 	public synchronized void relativeDirectionChange(double angleChange) {
-		this.vector.angle = (360 + this.vector.angle + angleChange
-				* this.vector.velocity) % 360;
+		this.vector.angle = (360 + this.vector.angle
+				+ angleChange * this.vector.velocity) % 360;
 	}
 
 	public synchronized void absoluteDirectionChange(double change) {
