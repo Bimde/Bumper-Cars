@@ -3,7 +3,7 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Toolkit;
+import java.awt.Polygon;
 import java.util.ArrayList;
 
 public class Entity {
@@ -15,14 +15,14 @@ public class Entity {
 	protected ArrayList<Entity> entityList;
 	public static final double MAX_VELOCITY = 20, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
 			TURN_FRICTION = 0.6, VELOCTY_EFFECT_ON_TURN_FRICTION = 0.5;
-	private static final int X = 0, Y = 1;
+	protected static final int X = 0, Y = 1;
 	protected boolean isTurning;
 
 	public Entity(Color color, double x, double y, int size, Vector vector, ArrayList<Entity> entityList) {
 		this.color = color;
 		int temp = size / 2;
-		this.points = new double[][] { { x - temp, x + temp, x - temp, x + temp },
-				{ y - temp, y + temp, y - temp, y + temp } };
+		this.points = new double[][] { { x - temp, x - temp, x + temp, x + temp },
+				{ y - temp, y + temp, y + temp, y - temp } };
 		this.size = size;
 		this.vector = vector;
 		this.entityList = entityList;
@@ -33,31 +33,14 @@ public class Entity {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.drawString("Angle: " + this.vector.angle + " | Velocity: " + this.vector.velocity, 10, 10);
 		g2d.setColor(this.color);
-		// g2d.rotate(Math.toRadians(this.vector.angle), this.x + this.size / 2,
-		// this.y + this.size / 2);
-		// g2d.fillRect(this.x.intValue(), this.y.intValue(), this.size,
-		// this.size);
 
-		g2d.fillPolygon(
-				new int[] { (int) this.points[X][0], (int) this.points[X][1], (int) this.points[X][2],
-						(int) this.points[X][3] },
-				new int[] { (int) this.points[Y][0], (int) this.points[Y][1], (int) this.points[Y][2],
-						(int) this.points[Y][3] },
-				this.points[X].length);
+		Polygon temp = new Polygon();
+		for (int i = 0; i < this.points[X].length; i++) {
+			temp.addPoint((int) this.points[X][i], (int) this.points[Y][i]);
+		}
+
+		g2d.fillPolygon(temp);
 		g2d.dispose();
-	}
-
-	// TODO
-	public boolean contains(int x, int y, int width, int height) {
-		int tempX = this.x();
-		int tempY = this.y();
-		return (tempX + this.size > x && x + width > tempX && tempY + this.size > y && y + height > tempY);
-	}
-
-	public boolean contains(Entity other) {
-		int tempX = this.x(), tempY = this.y(), otherX = other.x(), otherY = other.y();
-		return (tempX + this.size > otherX && otherX + other.getWidth() > tempX && tempY + this.size > otherY
-				&& otherY + other.getHeight() > tempY);
 	}
 
 	public synchronized void move() {
@@ -71,35 +54,87 @@ public class Entity {
 
 	protected void incrementX(double change) {
 		synchronized (this.points[X]) {
-			this.x += change;
-			if (this.x > Board.BOARD_SIZE - this.size
-					&& (this.forward() ? this.vector.angle < 180 : this.vector.angle > 180)) {
-				this.x = (Board.BOARD_SIZE - this.size) * 1.0;
-				this.vector.angle = 360 - this.vector.angle;
-				Toolkit.getDefaultToolkit().beep();
-			} else if (this.x < 0 && (this.forward() ? this.vector.angle > 180 : this.vector.angle < 180)) {
-				this.x = 0 * 1.0;
-				this.vector.angle = 360 - this.vector.angle;
-				Toolkit.getDefaultToolkit().beep();
+			for (int i = 0; i < points[X].length; i++) {
+				this.points[X][i] += change;
 			}
+			boolean collided = false;
+			for (int i = 0; !collided && i < this.points[X].length; i++) {
+				if (this.points[X][i] < 0) {
+					change = -points[X][i];
+					collided = true;
+					// this.vector.angle = 360 - this.vector.angle;
+					if (this.vector.velocity != 0)
+						this.relativeDirectionChange((360 - 2 * this.vector.angle) / this.vector.velocity);
+				} else if (this.points[X][i] > Board.BOARD_SIZE) {
+					change = -(points[X][i] - Board.BOARD_SIZE);
+					collided = true;
+					// this.vector.angle = 360 - this.vector.angle;
+					if (this.vector.velocity != 0)
+						this.relativeDirectionChange((360 - 2 * this.vector.angle) / this.vector.velocity);
+				}
+			}
+
+			if (collided) {
+				for (int i = 0; i < points[X].length; i++) {
+					this.points[X][i] += change;
+				}
+			}
+
+			// this.x += change;
+			// if (this.x > Board.BOARD_SIZE - this.size
+			// && (this.forward() ? this.vector.angle < 180 : this.vector.angle
+			// > 180)) {
+			// this.x = (Board.BOARD_SIZE - this.size) * 1.0;
+			// this.vector.angle = 360 - this.vector.angle;
+			// Toolkit.getDefaultToolkit().beep();
+			// } else if (this.x < 0 && (this.forward() ? this.vector.angle >
+			// 180 : this.vector.angle < 180)) {
+			// this.x = 0 * 1.0;
+			// this.vector.angle = 360 - this.vector.angle;
+			// Toolkit.getDefaultToolkit().beep();
+			// }
 		}
 	}
 
 	protected void incrementY(double change) {
-		synchronized (this.y) {
-			this.y += change;
-			if (this.y > Board.BOARD_SIZE - this.size
-					&& (this.forward() ? this.vector.angle > 90 && this.vector.angle < 270
-							: this.vector.angle < 90 || this.vector.angle > 270)) {
-				this.y = (Board.BOARD_SIZE - this.size) * 1.0;
-				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
-				Toolkit.getDefaultToolkit().beep();
-			} else if (this.y < 0 && (!this.forward() ? this.vector.angle > 90 && this.vector.angle < 270
-					: this.vector.angle < 90 || this.vector.angle > 270)) {
-				this.y = 0 * 1.0;
-				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
-				Toolkit.getDefaultToolkit().beep();
+		synchronized (this.points[Y]) {
+			for (int i = 0; i < points[Y].length; i++) {
+				this.points[Y][i] += change;
 			}
+			boolean collided = false;
+			for (int i = 0; !collided && i < this.points[Y].length; i++) {
+				if (this.points[Y][i] < 0) {
+					change = -points[Y][i];
+					collided = true;
+					this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+				} else if (this.points[Y][i] > Board.BOARD_SIZE) {
+					change = -(points[Y][i] - Board.BOARD_SIZE);
+					collided = true;
+					this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+				}
+			}
+
+			if (collided) {
+				for (int i = 0; i < points[Y].length; i++) {
+					this.points[Y][i] += change;
+				}
+			}
+
+			// this.y += change;
+			// if (this.y > Board.BOARD_SIZE - this.size
+			// && (this.forward() ? this.vector.angle > 90 && this.vector.angle
+			// < 270
+			// : this.vector.angle < 90 || this.vector.angle > 270)) {
+			// this.y = (Board.BOARD_SIZE - this.size) * 1.0;
+			// this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+			// Toolkit.getDefaultToolkit().beep();
+			// } else if (this.y < 0 && (!this.forward() ? this.vector.angle >
+			// 90 && this.vector.angle < 270
+			// : this.vector.angle < 90 || this.vector.angle > 270)) {
+			// this.y = 0 * 1.0;
+			// this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+			// Toolkit.getDefaultToolkit().beep();
+			// }
 		}
 	}
 
@@ -134,7 +169,7 @@ public class Entity {
 	}
 
 	protected double[][] getCords() {
-		return new double
+		return this.points;
 	}
 
 	protected Axis[] getAxes() {
@@ -142,7 +177,7 @@ public class Entity {
 		double slope = 0;
 		if (this.vector.angle != 90 && this.vector.angle != 270) {
 			slope = Math.tan(Math.toRadians(this.vector.angle));
-			axes[0] = new Axis(slope, this.y - slope * this.x);
+			axes[0] = new Axis(slope, this.points[Y][0] - slope * this.points[X][0]);
 			// Lazy way for rectangles!
 			if (slope == 0) {
 				slope = 1 / slope;
@@ -188,7 +223,26 @@ public class Entity {
 	}
 
 	public synchronized void relativeDirectionChange(double angleChange) {
-		this.vector.angle = (360 + this.vector.angle + angleChange * this.vector.velocity) % 360;
+		this.vector.angle = (360 + this.vector.angle + (angleChange = angleChange * this.vector.velocity)) % 360;
+		double radians = Math.toRadians(angleChange);
+		for (int i = 0; i < this.points[X].length; i++) {
+			double cx = 0, cy = 0;
+			for (int j = 0; j < this.points[X].length; j++) {
+				cx += this.points[X][j];
+				cy += this.points[Y][j];
+			}
+			cx = cx / 4;
+			cy = cy / 4;
+
+			double tempX = this.points[X][i] - cx;
+			double tempY = this.points[Y][i] - cy;
+			double theta = Math.toRadians(angleChange);
+			double rotatedX = tempX * Math.cos(theta) - tempY * Math.sin(theta);
+			double rotatedY = tempX * Math.sin(theta) + tempY * Math.cos(theta);
+
+			this.points[X][i] = rotatedX + cx;
+			this.points[Y][i] = rotatedY + cy;
+		}
 	}
 
 	public synchronized void absoluteDirectionChange(double change) {
