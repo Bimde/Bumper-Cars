@@ -12,7 +12,7 @@ public class AI extends Entity {
 	private static final double DIRECTION_CHANGE_CHANCE = 0.1, ANGLE_CHANGE = 2;
 
 	public AI(Color color, int x, int y, int size, ArrayList<Entity> entityList) {
-		super(color, x, y, size, new Direction(Math.random() * 360, AI_VELOCITY), entityList);
+		super(color, x, y, size, new Vector(Math.random() * 360, AI_VELOCITY), entityList);
 		this.angleChange = (int) (Math.random() * 3) - 1;
 		this.vector.velocity = AI_VELOCITY;
 	}

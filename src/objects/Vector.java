@@ -1,10 +1,10 @@
 package objects;
 
-class Direction {
+class Vector {
 
 	double angle, velocity;
 
-	Direction(double direction, double speed) {
+	Vector(double direction, double speed) {
 		this.angle = direction;
 		this.velocity = speed;
 	}
