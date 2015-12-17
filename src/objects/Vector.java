@@ -2,10 +2,10 @@ package objects;
 
 class Vector {
 
-	double angle, velocity;
+	double x, y;
 
-	Vector(double direction, double speed) {
-		this.angle = direction;
-		this.velocity = speed;
+	Vector(double x, double y) {
+		this.x = x;
+		this.y = y;
 	}
 }

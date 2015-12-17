@@ -14,12 +14,12 @@ public class AI extends Entity {
 	public AI(Color color, int x, int y, int size, ArrayList<Entity> entityList) {
 		super(color, x, y, size, new Vector(Math.random() * 360, AI_VELOCITY), entityList);
 		this.angleChange = (int) (Math.random() * 3) - 1;
-		this.vector.velocity = AI_VELOCITY;
+		this.vector.y = AI_VELOCITY;
 	}
 
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g.create();
-		g2d.drawString("Angle: " + this.vector.angle + " | Velocity: " + this.vector.velocity, 10, 30);
+		g2d.drawString("Angle: " + this.vector.x + " | Velocity: " + this.vector.y, 10, 30);
 		g2d.setColor(this.color);
 		// g2d.rotate(Math.toRadians(this.vector.angle), this.x + this.size / 2,
 		// this.y + this.size / 2);
@@ -48,9 +48,9 @@ public class AI extends Entity {
 	 */
 	@Override
 	public synchronized void move() {
-		double radians = Math.toRadians(this.vector.angle);
-		this.incrementX(this.vector.velocity * Math.sin(radians));
-		this.incrementY(-this.vector.velocity * Math.cos(radians));
+		double radians = Math.toRadians(this.vector.x);
+		this.incrementX(this.vector.y * Math.sin(radians));
+		this.incrementY(-this.vector.y * Math.cos(radians));
 		this.update();
 	}
 }
