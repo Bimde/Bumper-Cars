@@ -3,7 +3,8 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Polygon;
+import java.awt.Toolkit;
+import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
 public class Entity {
@@ -12,18 +13,21 @@ public class Entity {
 	protected Color color;
 	protected Vector position, movement;
 	protected ArrayList<Entity> entityList;
+	public static final int ANGLE = 0, SPEED = 1, SIZE = 1;
 	public static final double MAX_VELOCITY = 20,
 			MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
 			TURN_FRICTION = 0.6, VELOCTY_EFFECT_ON_TURN_FRICTION = 0.5;
 
-	public Entity(Color color, Vector position, int sideLength, int sides,
+	public Entity(Color color, Vector position, double[] sideLengths,
 			ArrayList<Entity> entityList) {
 		this.color = color;
-		double totalAngle = 180 * (sides - 2);
-		double increment = totalAngle / sides;
+		double totalAngle = 180 * (sideLengths.length - 2);
+		double increment = totalAngle / sideLengths.length;
 		double currentAngle = 0;
-		for (int i = 0; i < sides; i++) {
-
+		this.sides = new ArrayList<>();
+		for (int i = 0; i < sideLengths.length; i++) {
+			this.sides.add(new Vector(currentAngle, sideLengths[i]));
+			currentAngle += increment;
 		}
 		this.position = position;
 		this.movement = new Vector(0, 0);
@@ -33,113 +37,116 @@ public class Entity {
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.drawString(
-				"Angle: " + this.vector.x + " | Velocity: " + this.vector.y, 10,
-				10);
+				"Angle: " + this.movement.x + " | Velocity: " + this.movement.y,
+				10, 10);
 		g2d.setColor(this.color);
 
-		Polygon temp = new Polygon();
-		for (int i = 0; i < this.points[X].length; i++) {
-			temp.addPoint((int) this.points[X][i], (int) this.points[Y][i]);
+		Path2D.Double shape = new Path2D.Double();
+		double x = this.position.x, y = this.position.y;
+		shape.moveTo(x, y);
+		int size = this.sides.size();
+		for (int i = 0; i < size - 1; i++) {
+			Vector side = this.sides.get(i);
+			double radians = Math.toRadians(side.x);
+			x += side.y * Math.sin(radians);
+			y += side.y * Math.cos(radians);
+			shape.moveTo(x, y);
 		}
-
-		g2d.fillPolygon(temp);
+		shape.closePath();
+		g2d.fill(shape);
 		g2d.dispose();
 	}
 
 	public synchronized void move() {
 		for (Entity i : this.entityList)
 			intersects(i);
-		double radians = Math.toRadians(this.vector.x);
-		this.incrementX(this.vector.y * Math.sin(radians));
-		this.incrementY(-this.vector.y * Math.cos(radians));
+		double radians = Math.toRadians(this.movement.x);
+		this.incrementX(this.movement.y * Math.sin(radians));
+		this.incrementY(-this.movement.y * Math.cos(radians));
 		this.friction();
 	}
 
 	protected void incrementX(double change) {
-		synchronized (this.points[X]) {
+		// for (int i = 0; i < points[X].length; i++) {
+		// this.points[X][i] += change;
+		// }
+		// boolean collided = false;
+		// for (int i = 0; !collided && i < this.points[X].length; i++) {
+		// if (this.points[X][i] < 0) {
+		// change = -points[X][i];
+		// collided = true;
+		// // this.vector.angle = 360 - this.vector.angle;
+		// if (this.vector.y != 0)
+		// this.relativeDirectionChange(
+		// (360 - 2 * this.vector.x) / this.vector.y);
+		// } else if (this.points[X][i] > Board.BOARD_SIZE) {
+		// change = -(points[X][i] - Board.BOARD_SIZE);
+		// collided = true;
+		// // this.vector.angle = 360 - this.vector.angle;
+		// if (this.vector.y != 0)
+		// this.relativeDirectionChange(
+		// (360 - 2 * this.vector.x) / this.vector.y);
+		// }
+		// }
+
+		if (collided) {
 			for (int i = 0; i < points[X].length; i++) {
 				this.points[X][i] += change;
 			}
-			boolean collided = false;
-			for (int i = 0; !collided && i < this.points[X].length; i++) {
-				if (this.points[X][i] < 0) {
-					change = -points[X][i];
-					collided = true;
-					// this.vector.angle = 360 - this.vector.angle;
-					if (this.vector.y != 0)
-						this.relativeDirectionChange(
-								(360 - 2 * this.vector.x) / this.vector.y);
-				} else if (this.points[X][i] > Board.BOARD_SIZE) {
-					change = -(points[X][i] - Board.BOARD_SIZE);
-					collided = true;
-					// this.vector.angle = 360 - this.vector.angle;
-					if (this.vector.y != 0)
-						this.relativeDirectionChange(
-								(360 - 2 * this.vector.x) / this.vector.y);
-				}
-			}
+		}
 
-			if (collided) {
-				for (int i = 0; i < points[X].length; i++) {
-					this.points[X][i] += change;
-				}
-			}
-
-			// this.x += change;
-			// if (this.x > Board.BOARD_SIZE - this.size
-			// && (this.forward() ? this.vector.angle < 180 : this.vector.angle
-			// > 180)) {
-			// this.x = (Board.BOARD_SIZE - this.size) * 1.0;
-			// this.vector.angle = 360 - this.vector.angle;
-			// Toolkit.getDefaultToolkit().beep();
-			// } else if (this.x < 0 && (this.forward() ? this.vector.angle >
-			// 180 : this.vector.angle < 180)) {
-			// this.x = 0 * 1.0;
-			// this.vector.angle = 360 - this.vector.angle;
-			// Toolkit.getDefaultToolkit().beep();
-			// }
+		this.position.x += change;
+		if (this.position.x > Board.BOARD_SIZE - this.size && (this.forward()
+				? this.movement.angle < 180 : this.movement.angle > 180)) {
+			this.position.x = (Board.BOARD_SIZE - this.size) * 1.0;
+			this.movement.x = 360 - this.movement.angle;
+			Toolkit.getDefaultToolkit().beep();
+		} else if (this.x < 0 && (this.forward() ? this.movement.angle > 180
+				: this.movement.angle < 180)) {
+			this.position.x = 0 * 1.0;
+			this.movement.angle = 360 - this.movement.angle;
+			Toolkit.getDefaultToolkit().beep();
 		}
 	}
 
 	protected void incrementY(double change) {
 		synchronized (this.points[Y]) {
-			for (int i = 0; i < points[Y].length; i++) {
-				this.points[Y][i] += change;
-			}
-			boolean collided = false;
-			for (int i = 0; !collided && i < this.points[Y].length; i++) {
-				if (this.points[Y][i] < 0) {
-					change = -points[Y][i];
-					collided = true;
-					this.vector.x = (360 + 180 - this.vector.x) % 360;
-				} else if (this.points[Y][i] > Board.BOARD_SIZE) {
-					change = -(points[Y][i] - Board.BOARD_SIZE);
-					collided = true;
-					this.vector.x = (360 + 180 - this.vector.x) % 360;
-				}
-			}
-
-			if (collided) {
-				for (int i = 0; i < points[Y].length; i++) {
-					this.points[Y][i] += change;
-				}
-			}
-
-			// this.y += change;
-			// if (this.y > Board.BOARD_SIZE - this.size
-			// && (this.forward() ? this.vector.angle > 90 && this.vector.angle
-			// < 270
-			// : this.vector.angle < 90 || this.vector.angle > 270)) {
-			// this.y = (Board.BOARD_SIZE - this.size) * 1.0;
-			// this.vector.angle = (360 + 180 - this.vector.angle) % 360;
-			// Toolkit.getDefaultToolkit().beep();
-			// } else if (this.y < 0 && (!this.forward() ? this.vector.angle >
-			// 90 && this.vector.angle < 270
-			// : this.vector.angle < 90 || this.vector.angle > 270)) {
-			// this.y = 0 * 1.0;
-			// this.vector.angle = (360 + 180 - this.vector.angle) % 360;
-			// Toolkit.getDefaultToolkit().beep();
+			// for (int i = 0; i < points[Y].length; i++) {
+			// this.points[Y][i] += change;
 			// }
+			// boolean collided = false;
+			// for (int i = 0; !collided && i < this.points[Y].length; i++) {
+			// if (this.points[Y][i] < 0) {
+			// change = -points[Y][i];
+			// collided = true;
+			// this.vector.x = (360 + 180 - this.vector.x) % 360;
+			// } else if (this.points[Y][i] > Board.BOARD_SIZE) {
+			// change = -(points[Y][i] - Board.BOARD_SIZE);
+			// collided = true;
+			// this.vector.x = (360 + 180 - this.vector.x) % 360;
+			// }
+			// }
+			//
+			// if (collided) {
+			// for (int i = 0; i < points[Y].length; i++) {
+			// this.points[Y][i] += change;
+			// }
+			// }
+
+			this.y += change;
+			if (this.y > Board.BOARD_SIZE - this.size && (this.forward()
+					? this.vector.angle > 90 && this.vector.angle < 270
+					: this.vector.angle < 90 || this.vector.angle > 270)) {
+				this.y = (Board.BOARD_SIZE - this.size) * 1.0;
+				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+				Toolkit.getDefaultToolkit().beep();
+			} else if (this.y < 0 && (!this.forward()
+					? this.vector.angle > 90 && this.vector.angle < 270
+					: this.vector.angle < 90 || this.vector.angle > 270)) {
+				this.y = 0 * 1.0;
+				this.vector.angle = (360 + 180 - this.vector.angle) % 360;
+				Toolkit.getDefaultToolkit().beep();
+			}
 		}
 	}
 
@@ -266,26 +273,18 @@ public class Entity {
 	}
 
 	public void roundAngle() {
-		this.vector.x = Math.round(this.vector.x);
+		this.movement.x = Math.round(this.movement.x);
 	}
 
-	public Vector vector() {
-		return this.vector;
+	public Vector movement() {
+		return this.movement;
 	}
 
-	public int size() {
-		return this.size;
+	public Vector position() {
+		return this.position;
 	}
 
-	public int getWidth() {
-		return this.size;
-	}
-
-	public int getHeight() {
-		return this.size;
-	}
-
-	public boolean forward() {
-		return this.vector.y > 0;
+	public ArrayList<Vector> getSides() {
+		return this.sides;
 	}
 }
