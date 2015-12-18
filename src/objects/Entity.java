@@ -70,8 +70,9 @@ public class Entity {
 	}
 
 	private void updatePoints() {
-		this.shape.xpoints[0] = (int) this.position.x;
-		this.shape.ypoints[0] = (int) this.position.y;
+		// UPDATE THIS
+		this.shape.xpoints[0] = (int) this.position.x - (SIZE / 2);
+		this.shape.ypoints[0] = (int) this.position.y - (SIZE / 2);
 		for (int i = 1; i < this.noSides; i++) {
 			Vector side = this.sides.get(i);
 			double radians = Math.toRadians(side.x);
@@ -81,47 +82,6 @@ public class Entity {
 	}
 
 	protected void incrementX(double change) {
-		// for (int i = 0; i < points[X].length; i++) {
-		// this.points[X][i] += change;
-		// }
-		// boolean collided = false;
-		// for (int i = 0; !collided && i < this.points[X].length; i++) {
-		// if (this.points[X][i] < 0) {
-		// change = -points[X][i];
-		// collided = true;
-		// // this.vector.angle = 360 - this.vector.angle;
-		// if (this.vector.y != 0)
-		// this.relativeDirectionChange((360 - 2 * this.vector.x) /
-		// this.vector.y);
-		// } else if (this.points[X][i] > Board.BOARD_SIZE) {
-		// change = -(points[X][i] - Board.BOARD_SIZE);
-		// collided = true;
-		// // this.vector.angle = 360 - this.vector.angle;
-		// if (this.vector.y != 0)
-		// this.relativeDirectionChange((360 - 2 * this.vector.x) /
-		// this.vector.y);
-		// }
-		// }
-		//
-		// if (collided) {
-		// for (int i = 0; i < shape[X].length; i++) {
-		// this.shape[X][i] += change;
-		// }
-		// }
-		//
-		// this.position.x += change;
-		// if (this.position.x > Board.BOARD_SIZE - this.size
-		// && (this.forward() ? this.movement.x < 180 : this.movement.x > 180))
-		// {
-		// this.position.x = (Board.BOARD_SIZE - this.size) * 1.0;
-		// this.movement.x = 360 - this.movement.angle;
-		// Toolkit.getDefaultToolkit().beep();
-		// } else if (this.x < 0 && (this.forward() ? this.movement.x > 180 :
-		// this.movement.angle < 180)) {
-		// this.position.x = 0 * 1.0;
-		// this.movement.x = 360 - this.movement.x;
-		// Toolkit.getDefaultToolkit().beep();
-		// }
 		boolean collided = false;
 		for (int i = 0; !collided && i < this.noSides; i++) {
 			int point = (int) (this.shape.xpoints[i] + change);
@@ -141,44 +101,6 @@ public class Entity {
 	}
 
 	protected void incrementY(double change) {
-		// for (int i = 0; i < points[Y].length; i++) {
-		// this.points[Y][i] += change;
-		// }
-		// boolean collided = false;
-		// for (int i = 0; !collided && i < this.points[Y].length; i++) {
-		// if (this.points[Y][i] < 0) {
-		// change = -points[Y][i];
-		// collided = true;
-		// this.vector.x = (360 + 180 - this.vector.x) % 360;
-		// } else if (this.points[Y][i] > Board.BOARD_SIZE) {
-		// change = -(points[Y][i] - Board.BOARD_SIZE);
-		// collided = true;
-		// this.vector.x = (360 + 180 - this.vector.x) % 360;
-		// }
-		// }
-		//
-		// if (collided) {
-		// for (int i = 0; i < points[Y].length; i++) {
-		// this.points[Y][i] += change;
-		// }
-		// }
-		//
-		// this.y += change;
-		// if (this.y > Board.BOARD_SIZE - this.size
-		// && (this.forward() ? this.vector.angle > 90 && this.vector.angle
-		// < 270
-		// : this.vector.angle < 90 || this.vector.angle > 270)) {
-		// this.y = (Board.BOARD_SIZE - this.size) * 1.0;
-		// this.vector.angle = (360 + 180 - this.vector.angle) % 360;
-		// Toolkit.getDefaultToolkit().beep();
-		// } else if (this.y < 0 && (!this.forward() ? this.vector.angle >
-		// 90 && this.vector.angle < 270
-		// : this.vector.angle < 90 || this.vector.angle > 270)) {
-		// this.y = 0 * 1.0;
-		// this.vector.angle = (360 + 180 - this.vector.angle) % 360;
-		// Toolkit.getDefaultToolkit().beep();
-		// }
-
 		boolean collided = false;
 		for (int i = 0; !collided && i < this.noSides; i++) {
 			int point = (int) (this.shape.ypoints[i] + change);
