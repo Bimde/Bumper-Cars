@@ -21,9 +21,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 	private boolean[] keysPressed = { false, false, false, false };
 	Timer timer;
 	private static final Color START_COLOR = Color.BLACK;
-	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 600,
-			DELAY = 1000 / 60, MIN_SQUARE_SIZE = 20, UP = 0, DOWN = 1,
-			LEFT = 2, RIGHT = 3;
+	public static final int MAX_SQUARE_SIZE = 40, BOARD_SIZE = 600, DELAY = 1000 / 60, MIN_SQUARE_SIZE = 20, UP = 0,
+			DOWN = 1, LEFT = 2, RIGHT = 3;
 
 	public Board() {
 		super();
@@ -37,28 +36,20 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
 	private void addEntity(boolean isAI) {
 		if (isAI) {
-			this.entityList
-					.add(new AI(
-							Color.ORANGE,
-							(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
-							(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
-							(int) (Math.random()
-									* (MAX_SQUARE_SIZE - MIN_SQUARE_SIZE) + MIN_SQUARE_SIZE),
-							this.entityList));
+			this.entityList.add(new AI(Color.ORANGE, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
+					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
+					(int) (Math.random() * (MAX_SQUARE_SIZE - MIN_SQUARE_SIZE) + MIN_SQUARE_SIZE), this.entityList));
 		} else {
-			this.player = new Player(START_COLOR,
-					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
-					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
-					(MAX_SQUARE_SIZE + MIN_SQUARE_SIZE) / 2, this.keysPressed,
-					this.entityList);
+			this.player = new Player(START_COLOR, (int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)),
+					(int) (Math.random() * (BOARD_SIZE - MAX_SQUARE_SIZE)), (MAX_SQUARE_SIZE + MIN_SQUARE_SIZE) / 2,
+					this.keysPressed, this.entityList);
 			this.entityList.add(this.player);
 		}
 	}
 
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		for (int i = 1; i < this.entityList.size(); i++) {
 			this.entityList.get(i).paint(g);
 		}
@@ -88,12 +79,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 		else if (key == KeyEvent.VK_V)
 			this.addEntity(true);
 		else if (key == KeyEvent.VK_F) {
-			System.out.println("Number of AI: " + this.entityList.size()
-					+ "\nVelocity: " + this.player.vector.y
-					+ "\nAngle: " + this.player.vector.x);
+			System.out.println("Number of AI: " + this.entityList.size() + "\nVelocity: " + this.player.movement.y
+					+ "\nAngle: " + this.player.movement.x);
 			for (int i = 0; i < 3; i++)
-				System.out
-						.println("------------------------------------------------");
+				System.out.println("------------------------------------------------");
 		}
 	}
 

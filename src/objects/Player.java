@@ -9,13 +9,12 @@ public class Player extends Entity {
 	public final double SPEED_INCREMENT = 0.1, ANGLE_INCREMENT = 0.4;
 
 	public Player(Color color, int x, int y, int size, boolean[] keysPressed, ArrayList<Entity> entityList) {
-		super(color, x, y, size, new Vector(0, 0), entityList);
+		super(color, new Vector(x, y), new double[] { size, size, size, size }, entityList);
 		this.keysPressed = keysPressed;
 	}
 
 	@Override
 	public void move() {
-		boolean turning = false;
 		if (keysPressed[Board.UP]) {
 			if (!keysPressed[Board.DOWN]) {
 				this.speed(SPEED_INCREMENT);
@@ -26,13 +25,10 @@ public class Player extends Entity {
 		if (keysPressed[Board.LEFT]) {
 			if (!keysPressed[Board.RIGHT]) {
 				this.relativeDirectionChange(-ANGLE_INCREMENT);
-				turning = true;
 			}
 		} else if (keysPressed[Board.RIGHT]) {
 			this.relativeDirectionChange(ANGLE_INCREMENT);
-			turning = true;
 		}
-		this.isTurning = turning;
 		super.move();
 	}
 }
