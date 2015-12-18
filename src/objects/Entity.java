@@ -128,10 +128,12 @@ public class Entity {
 			if (point < 0) {
 				change -= point;
 				collided = true;
+				this.relativeDirectionChange((360 - 2 * this.movement.x) / this.movement.y);
 				Toolkit.getDefaultToolkit().beep();
 			} else if (point > Board.BOARD_SIZE) {
 				change -= (point - Board.BOARD_SIZE);
 				collided = true;
+				this.relativeDirectionChange((360 - 2 * this.movement.x) / this.movement.y);
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
@@ -183,10 +185,12 @@ public class Entity {
 			if (point < 0) {
 				change -= point;
 				collided = true;
+				this.movement.x = (360 + 180 - this.movement.x) % 360;
 				Toolkit.getDefaultToolkit().beep();
 			} else if (point > Board.BOARD_SIZE) {
 				change -= (point - Board.BOARD_SIZE);
 				collided = true;
+				this.movement.x = (360 + 180 - this.movement.x) % 360;
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
