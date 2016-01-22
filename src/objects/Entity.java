@@ -9,17 +9,18 @@ import java.util.ArrayList;
 
 public class Entity {
 
-	protected ArrayList<Vector> sides;
-	protected Color color;
-	protected Vector position, movement;
-	protected ArrayList<Entity> entityList;
-	protected Polygon shape;
-	protected int noSides;
-	public static final int ANGLE = 0, SPEED = 1, SIZE = 1;
+	protected final ArrayList<Vector> sides;
+	protected final Color color;
+	protected final Point position;
+	protected final Vector movement, firstPoint;
+	protected final ArrayList<Entity> entityList;
+	protected final Polygon shape;
+	protected final int noSides;
+	public static final int ANGLE = 0, SPEED = 1;
 	public static final double MAX_VELOCITY = 20, MIN_VELOCITY = -MAX_VELOCITY / 2, FRICTION = 0.01,
 			TURN_FRICTION = 0.6, VELOCTY_EFFECT_ON_TURN_FRICTION = 0.5;
 
-	public Entity(Color color, Vector position, double[] sideLengths, ArrayList<Entity> entityList) {
+	public Entity(Color color, Point position, double[] sideLengths, ArrayList<Entity> entityList) {
 		this.color = color;
 		double totalAngle = 180 * (sideLengths.length - 2);
 		double increment = totalAngle / sideLengths.length;
@@ -34,11 +35,18 @@ public class Entity {
 		this.position = position;
 		this.movement = new Vector(0, 0);
 		this.entityList = entityList;
+		this.firstPoint = this.loadFirstPoint();
 	}
 
 	public void paint(Graphics g) {
-		Graphics2D g2d = (Graphics2D) g.create();
-		g2d.drawString("Angle: " + this.movement.x + " | Velocity: " + this.movement.y, 10, 10);
+		final Graphics2D g2d = (Graphics2D) g.create();
+		g2d.drawString("Angle: " + this.movement.angle + " | Velocity: " + this.movement.speed, 10, 10);
+		g2d.drawString("X: " + this.position.x + " | Y: " + this.position.y, 10, 25);
+
+		for (int i = 0; i < this.shape.ypoints.length; i++) {
+			g2d.drawString("Side " + (i + 1) + " | X: " + this.shape.xpoints[i] + " | Y: " + this.shape.ypoints[i], 10,
+					40 + 15 * i);
+		}
 		g2d.setColor(this.color);
 
 		// Path2D.Double shape = new Path2D.Double();
@@ -62,22 +70,46 @@ public class Entity {
 	public synchronized void move() {
 		for (Entity i : this.entityList)
 			intersects(i);
-		double radians = Math.toRadians(this.movement.x);
-		this.incrementX(this.movement.y * Math.sin(radians));
-		this.incrementY(-this.movement.y * Math.cos(radians));
+		double radians = Math.toRadians(this.movement.angle);
+		this.incrementX(this.movement.speed * Math.sin(radians));
+		this.incrementY(-this.movement.speed * Math.cos(radians));
 		// this.friction();
 		this.updatePoints();
 	}
 
+	// TODO Update for support for non-square entities
+	/**
+	 * PRECONDITION: position.x and position.y must be 0 (this is assumed for
+	 * major efficiency gains).
+	 * 
+	 * @return
+	 */
+	private Vector loadFirstPoint() {
+		double length = this.sides.get(0).speed;
+		double x = length / 2, y = length / 2;
+		System.out.println(x + " : " + y);
+
+		// Calculate vector (scalable to multiple shapes, depending on
+		// implementation)
+		return new Vector((360 + Math.toDegrees(Math.atan(Math.abs(x) / Math.abs(y)))) % 360 + this.position.x,
+				Math.sqrt(x * x + y * y) + this.position.y);
+	}
+
+	public Vector getFirstPoint() {
+		double radians = Math.toRadians((this.firstPoint.angle + this.movement.angle) % 360);
+		return new Vector(this.position.x + this.firstPoint.speed * Math.sin(radians),
+				this.position.y + this.firstPoint.speed * Math.cos(radians));
+	}
+
 	private void updatePoints() {
-		// UPDATE THIS
-		this.shape.xpoints[0] = (int) this.position.x - (SIZE / 2);
-		this.shape.ypoints[0] = (int) this.position.y - (SIZE / 2);
+		Vector temp = this.getFirstPoint();
+		this.shape.xpoints[0] = (int) temp.angle;
+		this.shape.ypoints[0] = (int) temp.speed;
 		for (int i = 1; i < this.noSides; i++) {
 			Vector side = this.sides.get(i);
-			double radians = Math.toRadians(side.x);
-			this.shape.xpoints[i] = (int) (this.shape.xpoints[i - 1] + side.y * Math.sin(radians));
-			this.shape.ypoints[i] = (int) (this.shape.ypoints[i - 1] + side.y * Math.cos(radians));
+			double radians = Math.toRadians((side.angle + this.movement.angle) % 360);
+			this.shape.xpoints[i] = (int) (this.shape.xpoints[i - 1] + side.speed * Math.sin(radians));
+			this.shape.ypoints[i] = (int) (this.shape.ypoints[i - 1] + side.speed * Math.cos(radians));
 		}
 	}
 
@@ -88,12 +120,12 @@ public class Entity {
 			if (point < 0) {
 				change -= point;
 				collided = true;
-				this.relativeDirectionChange((360 - 2 * this.movement.x) / this.movement.y);
+				this.relativeDirectionChange((360 - 2 * this.movement.angle) / this.movement.speed);
 				Toolkit.getDefaultToolkit().beep();
 			} else if (point > Board.BOARD_SIZE) {
 				change -= (point - Board.BOARD_SIZE);
 				collided = true;
-				this.relativeDirectionChange((360 - 2 * this.movement.x) / this.movement.y);
+				this.relativeDirectionChange((360 - 2 * this.movement.angle) / this.movement.speed);
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
@@ -107,12 +139,12 @@ public class Entity {
 			if (point < 0) {
 				change -= point;
 				collided = true;
-				this.movement.x = (360 + 180 - this.movement.x) % 360;
+				this.movement.angle = (360 + 180 - this.movement.angle) % 360;
 				Toolkit.getDefaultToolkit().beep();
 			} else if (point > Board.BOARD_SIZE) {
 				change -= (point - Board.BOARD_SIZE);
 				collided = true;
-				this.movement.x = (360 + 180 - this.movement.x) % 360;
+				this.movement.angle = (360 + 180 - this.movement.angle) % 360;
 				Toolkit.getDefaultToolkit().beep();
 			}
 		}
@@ -201,11 +233,11 @@ public class Entity {
 	// }
 
 	public synchronized void speed(double change) {
-		this.movement.y = Math.max(MIN_VELOCITY, Math.min(this.movement.y + change, MAX_VELOCITY));
+		this.movement.speed = Math.max(MIN_VELOCITY, Math.min(this.movement.speed + change, MAX_VELOCITY));
 	}
 
 	public synchronized void relativeDirectionChange(double angleChange) {
-		this.movement.x = (360 + this.movement.x + (angleChange = angleChange * this.movement.y)) % 360;
+		this.movement.angle = (360 + this.movement.angle + (angleChange = angleChange * this.movement.speed)) % 360;
 		// double radians = Math.toRadians(angleChange);
 		// for (int i = 0; i < this.shape[X].length; i++) {
 		// double cx = 0, cy = 0;
@@ -228,18 +260,18 @@ public class Entity {
 	}
 
 	public synchronized void absoluteDirectionChange(double change) {
-		this.movement.x = (this.movement.x + change + 360) % 360;
+		this.movement.angle = (this.movement.angle + change + 360) % 360;
 	}
 
 	public void roundAngle() {
-		this.movement.x = Math.round(this.movement.x);
+		this.movement.angle = Math.round(this.movement.angle);
 	}
 
 	public Vector movement() {
 		return this.movement;
 	}
 
-	public Vector position() {
+	public Point position() {
 		return this.position;
 	}
 

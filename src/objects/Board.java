@@ -79,8 +79,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 		else if (key == KeyEvent.VK_V)
 			this.addEntity(true);
 		else if (key == KeyEvent.VK_F) {
-			System.out.println("Number of AI: " + this.entityList.size() + "\nVelocity: " + this.player.movement.y
-					+ "\nAngle: " + this.player.movement.x);
+			System.out.println("Number of AI: " + this.entityList.size() + "\nVelocity: " + this.player.movement.speed
+					+ "\nAngle: " + this.player.movement.angle);
 			for (int i = 0; i < 3; i++)
 				System.out.println("------------------------------------------------");
 		}

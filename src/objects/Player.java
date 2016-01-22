@@ -9,7 +9,7 @@ public class Player extends Entity {
 	public final double SPEED_INCREMENT = 0.1, ANGLE_INCREMENT = 0.4;
 
 	public Player(Color color, int x, int y, int size, boolean[] keysPressed, ArrayList<Entity> entityList) {
-		super(color, new Vector(x, y), new double[] { size, size, size, size }, entityList);
+		super(color, new Point(x, y), new double[] { size, size, size, size }, entityList);
 		this.keysPressed = keysPressed;
 	}
 
