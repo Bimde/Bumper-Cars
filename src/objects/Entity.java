@@ -78,33 +78,31 @@ public class Entity {
 	}
 
 	// TODO Update for support for non-square entities
-	/**
-	 * PRECONDITION: position.x and position.y must be 0 (this is assumed for
-	 * major efficiency gains).
-	 * 
-	 * @return
-	 */
 	private Vector loadFirstPoint() {
 		double length = this.sides.get(0).speed;
-		double x = length / 2, y = length / 2;
+		double x = (-length) / 2, y = (-length) / 2;
 		System.out.println(x + " : " + y);
 
 		// Calculate vector (scalable to multiple shapes, depending on
 		// implementation)
-		return new Vector((360 + Math.toDegrees(Math.atan(Math.abs(x) / Math.abs(y)))) % 360 + this.position.x,
+		Vector temp = new Vector((360 + Math.toDegrees(Math.atan(x / y))) % 360 + this.position.x,
 				Math.sqrt(x * x + y * y) + this.position.y);
+		System.out.println(temp.angle + " : " + temp.speed);
+		return temp;
 	}
 
-	public Vector getFirstPoint() {
+	public Point getFirstPoint() {
 		double radians = Math.toRadians((this.firstPoint.angle + this.movement.angle) % 360);
-		return new Vector(this.position.x + this.firstPoint.speed * Math.sin(radians),
+		Point temp = new Point(this.position.x + this.firstPoint.speed * Math.sin(radians),
 				this.position.y + this.firstPoint.speed * Math.cos(radians));
+		System.out.println(temp.x + " : " + temp.y);
+		return temp;
 	}
 
 	private void updatePoints() {
-		Vector temp = this.getFirstPoint();
-		this.shape.xpoints[0] = (int) temp.angle;
-		this.shape.ypoints[0] = (int) temp.speed;
+		Point temp = this.getFirstPoint();
+		this.shape.xpoints[0] = (int) temp.x;
+		this.shape.ypoints[0] = (int) temp.y;
 		for (int i = 1; i < this.noSides; i++) {
 			Vector side = this.sides.get(i);
 			double radians = Math.toRadians((side.angle + this.movement.angle) % 360);
